@@ -1,0 +1,9 @@
+global:
+  domain_name: 24022020.xyz
+  revision: main
+
+argocd:
+  namespace_name: argocd
+  chart_version: 9.1.5
+  exec:
+    enabled: true
