@@ -1,0 +1,28 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudflare-tunnel
+  namespace: {{ .Values.argocd.namespace_name }}
+spec:
+  project: default
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {{ .Values.cloudflare.namespace_name }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    chart: cloudflare-tunnel
+    repoURL: https://cloudflare.github.io/helm-charts
+    targetRevision: {{ .Values.cloudflare.chart_version }}
+    helm:
+      values: |
+        replicaCount: 1
+
+        image:
+          tag: {{ .Values.cloudflare.version }}
+
+        cloudflare:
+          tunnelName: maroilles
+          secretName: cloudflare-tunnel

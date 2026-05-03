@@ -9,6 +9,9 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: {{ .Values.argocd.namespace_name }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
   source:
     chart: argo-cd
     repoURL: https://argoproj.github.io/argo-helm
