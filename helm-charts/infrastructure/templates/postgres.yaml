@@ -1,0 +1,18 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: {{ .Values.argocd.namespace_name }}
+spec:
+  project: default
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {{ .Values.postgres.namespace_name }}
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+  source:
+    path: helm-charts/infrastructure-charts/postgres
+    repoURL: https://github.com/paulden/homelab
+    targetRevision: {{ .Values.global.revision }}
