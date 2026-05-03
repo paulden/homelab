@@ -26,3 +26,6 @@ spec:
         cloudflare:
           tunnelName: maroilles
           secretName: cloudflare-tunnel
+          ingress:
+            - hostname: "*.{{ .Values.global.domain_name }}"
+              service: http://traefik.kube-system.svc.cluster.local:80

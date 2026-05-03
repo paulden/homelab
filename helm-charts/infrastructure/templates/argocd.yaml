@@ -23,6 +23,12 @@ spec:
             format: json
 
         server:
+          extraArgs:
+            - --insecure
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            hostname: argocd.{{ .Values.global.domain_name }}
           resources:
             requests:
               cpu: 50m
