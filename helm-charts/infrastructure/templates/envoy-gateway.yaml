@@ -1,0 +1,29 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: envoy-gateway
+  namespace: {{ .Values.argocd.namespace_name }}
+spec:
+  project: default
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {{ .Values.envoy.namespace_name }}
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+  source:
+    chart: envoy-gateway-system
+    repoURL: oci://docker.io/envoyproxy/gateway-helm
+    targetRevision: {{ .Values.envoy.chart_version }}
+    helm:
+      values: |
+        replicaCount: 1
+
+        image:
+          tag: {{ .Values.cloudflare.version }}
+
+        cloudflare:
+          tunnelName: maroilles
+          secretName: cloudflare-tunnel

@@ -34,11 +34,14 @@ spec:
               cpu: 50m
               memory: 64Mi
 
-        applicationController:
+        controller:
           resources:
             requests:
               cpu: 50m
               memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
 
         dex:
           enabled: false
