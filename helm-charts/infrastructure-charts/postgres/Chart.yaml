@@ -1,7 +1,0 @@
----
-apiVersion: v2
-name: postgres
-description: A Helm chart to deploy a simple Postgres
-type: application
-version: 0.0.1
-appVersion: "0.0.1"

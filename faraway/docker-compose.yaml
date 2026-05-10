@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: faraway
+      POSTGRES_PASSWORD: faraway
+      POSTGRES_DB: faraway
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  api:
+    image: ghcr.io/paulden/faraway_api:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: faraway
+      DB_PASSWORD: faraway
+      DB_NAME: faraway
+      DB_SSLMODE: disable
+    networks:
+      - backend
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      - "traefik.http.routers.faraway-api.rule=Host(`faraway.24022020.xyz`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.faraway-api.entrypoints=web"
+
+      - "traefik.http.middlewares.faraway-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.faraway-api.middlewares=faraway-strip"
+
+      - "traefik.http.routers.faraway-api.service=faraway-api"
+      - "traefik.http.services.faraway-api.loadbalancer.server.port=8080"
+
+  front:
+    image: ghcr.io/paulden/faraway:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: faraway
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      - "traefik.http.routers.faraway-front.rule=Host(`faraway.24022020.xyz`)"
+      - "traefik.http.routers.faraway-front.entrypoints=web"
+
+      - "traefik.http.services.faraway-front.loadbalancer.server.port=80"
+
+volumes:
+  postgres_data:
+
+networks:
+  web:
+    external: true
+  backend:

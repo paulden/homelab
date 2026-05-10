@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: flyway
+      POSTGRES_PASSWORD: flyway_pwd
+      POSTGRES_DB: bonsplans
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  api:
+    image: ghcr.io/mrnlrt/onfaitquoicesoir_api:main
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bonsplans
+      CORS_URL: "*"
+    networks:
+      - backend
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      - "traefik.http.routers.onfaitquoicesoir-api.rule=Host(`onfaitquoicesoir.24022020.xyz`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.onfaitquoicesoir-api.entrypoints=web"
+
+      - "traefik.http.middlewares.onfaitquoicesoir-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.onfaitquoicesoir-api.middlewares=onfaitquoicesoir-strip"
+
+      - "traefik.http.routers.onfaitquoicesoir-api.service=onfaitquoicesoir-api"
+      - "traefik.http.services.onfaitquoicesoir-api.loadbalancer.server.port=8080"
+
+  front:
+    image: ghcr.io/mrnlrt/onfaitquoicesoir:main
+    restart: unless-stopped
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      - "traefik.http.routers.onfaitquoicesoir-front.rule=Host(`onfaitquoicesoir.24022020.xyz`) && PathPrefix(`/`)"
+      - "traefik.http.routers.onfaitquoicesoir-front.entrypoints=web"
+
+      - "traefik.http.services.onfaitquoicesoir-front.loadbalancer.server.port=3000"
+
+volumes:
+  postgres_data:
+
+networks:
+  web:
+    external: true
+  backend:

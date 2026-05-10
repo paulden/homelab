@@ -1,9 +1,0 @@
-image: postgres:17.9-alpine3.23
-
-postgres:
-  user: admin
-  password: admin
-  db: bonsplans
-
-storage:
-  size: 200Mi
